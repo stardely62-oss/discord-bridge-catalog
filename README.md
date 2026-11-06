@@ -67,4 +67,4 @@
 - Данные наборов — CC0 1.0.
 - Значки — см. `icons/SOURCES.md`: товарные знаки принадлежат владельцам.
 
-Discord Bridge не связан с Discord Inc., Google (YouTube) и другими упомянутыми компаниями.
+Discord Bridge не связан с Discord Inc., Google (YouTube), Cloudflare и другими упомянутыми компаниями.

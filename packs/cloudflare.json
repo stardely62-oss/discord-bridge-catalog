@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "id": "cloudflare",
+  "version": 1,
+  "updated": "2026-11-06",
+  "name": {
+    "ru": "Cloudflare",
+    "en": "Cloudflare"
+  },
+  "description": {
+    "ru": "Домены инфраструктуры Cloudflare из list-general.txt: DNS-over-HTTPS, ECH, Zero Trust, статус и другие служебные адреса.",
+    "en": "Cloudflare infrastructure domains from list-general.txt: DNS over HTTPS, ECH, Zero Trust, status and other service addresses."
+  },
+  "category": "service",
+  "source": "official",
+  "icon": "cloudflare.png",
+  "domains": [
+    "cloudflare-dns.com",
+    "cloudflare-ech.com",
+    "cloudflareaccess.com",
+    "cloudflareapps.com",
+    "cloudflarebolt.com",
+    "cloudflareclient.com",
+    "cloudflareinsights.com",
+    "cloudflareok.com",
+    "cloudflarepartners.com",
+    "cloudflareportal.com",
+    "cloudflarepreview.com",
+    "cloudflareresolve.com",
+    "cloudflaressl.com",
+    "cloudflarestatus.com",
+    "cloudflarestorage.com",
+    "cloudflarestream.com",
+    "cloudflaretest.com"
+  ],
+  "ips": [],
+  "provenance": [
+    {
+      "kind": "domains",
+      "url": "https://github.com/Flowseal/zapret-discord-youtube",
+      "note": "Записи доменов Cloudflare из list-general.txt Flowseal 1.10.4 (cloudflare-dns.com указан там точной записью «^»). cloudfront.net принадлежит AWS и сюда не входит; encryptedsni.com не отнесён к Cloudflare без подтверждения владельца."
+    },
+    {
+      "kind": "icon",
+      "url": "https://github.com/simple-icons/simple-icons",
+      "note": "Значок из Simple Icons (CC0 1.0); товарный знак принадлежит владельцу, используется только для обозначения сервиса."
+    }
+  ],
+  "notes": {
+    "ru": "Информационная карточка: домены уже входят в list-general.txt и отдельно не устанавливаются. IP-адреса Cloudflare сюда не входят, и весь трафик Cloudflare не обрабатывается — только эти домены на портах правил Flowseal.",
+    "en": "Information card: these domains are already in list-general.txt and are not installed separately. Cloudflare IP ranges are not included and Cloudflare traffic as a whole is not handled — only these domains on the ports of the Flowseal rules."
+  },
+  "flowsealList": "list-general.txt"
+}

@@ -14,6 +14,8 @@
 |---|---|---|---|
 | discord.png | discord | #5865F2 | https://discord.com/branding |
 | youtube.png | youtube | #FF0000 | https://www.youtube.com/howyoutubeworks/resources/brand-resources/ |
+| google.png | google | #4285F4 | https://about.google/brand-resource-center/ |
+| cloudflare.png | cloudflare | #F38020 | https://www.cloudflare.com/trademark/ |
 
 Если правообладатель попросит убрать значок, набор продолжит работать с запасным
 значком (первая буква названия).
