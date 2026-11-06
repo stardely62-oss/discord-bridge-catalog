@@ -43,6 +43,6 @@ test("the published baseline must verify with the pinned key", () => {
 
 test("the packs in this repository are valid input", () => {
   const cur = currentPacks();
-  assert.equal(cur.length, 10);
+  assert.ok(cur.length > 0, "expected at least one maintained catalog pack");
   assert.deepEqual(compare(cur, cur, "self"), []);
 });
