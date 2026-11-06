@@ -13,12 +13,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - name: Validate packs and icons, build the snapshot
         run: node scripts/build.mjs --out dist
+      - name: Versioning check tests (offline)
+        run: node --test scripts/check-versions.test.mjs
+      - name: Changed addresses need a new pack version (vs. base and the published catalog)
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          base=""
+          if [ -n "$BASE_SHA" ] && [ "$BASE_SHA" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then base="--base $BASE_SHA"; fi
+          node scripts/check-versions.mjs $base --published
       - name: The build is deterministic
         run: |
           node scripts/build.mjs --out dist2 >/dev/null

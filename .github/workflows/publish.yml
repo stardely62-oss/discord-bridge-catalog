@@ -30,6 +30,8 @@ jobs:
           last=$(gh release list --limit 1 --json tagName -q '.[0].tagName' | sed 's/^catalog-//')
           echo "new $new, last ${last:-none}"
           if [ -n "$last" ] && [ "$new" -le "$last" ]; then echo "serial $new is not newer than $last"; exit 1; fi
+      - name: Changed addresses need a new pack version (vs. the published catalog)
+        run: node scripts/check-versions.mjs --published --allow-unpublished
       - name: Sign (refuses without the key or with a key that is not pinned)
         env:
           CATALOG_SIGNING_KEY: ${{ secrets.CATALOG_SIGNING_KEY }}
