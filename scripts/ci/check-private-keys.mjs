@@ -5,7 +5,12 @@
 // the value.
 //
 //   node scripts/ci/check-private-keys.mjs [--history]
-import { createPrivateKey, createPublicKey } from "node:crypto";
+//
+// .github/secret-scan-allowlist.json lists blobs (full SHA) that were
+// reviewed and contain no secret, with the reason — e.g. a test file that
+// contained a literal PEM marker. Allowlisting is per exact blob: any change
+// of the file is scanned again.
+import { createHash, createPrivateKey, createPublicKey } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
@@ -13,6 +18,8 @@ import { fileURLToPath } from "node:url";
 
 const B64_32 = /(?<![A-Za-z0-9+/])[A-Za-z0-9+/]{43}=(?![A-Za-z0-9+/=])/g;
 const PEM = /-----BEGIN (?:[A-Z]+ )?PRIVATE KEY-----/;
+
+const blobSha = (buf) => createHash("sha1").update(`blob ${buf.length}\0`).update(buf).digest("hex");
 
 export function publicOfSeed(seed) {
   const k = createPrivateKey({ key: Buffer.concat([Buffer.from("302e020100300506032b657004220420", "hex"), seed]), format: "der", type: "pkcs8" });
@@ -78,10 +85,13 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       blobs.set(`${w.sha.slice(0, 7)}:${w.name}`, () => body);
     }
   }
+  const allowFile = ".github/secret-scan-allowlist.json";
+  const allowed = new Set(fs.existsSync(allowFile) ? JSON.parse(fs.readFileSync(allowFile, "utf8")).blobs.map((b) => b.sha) : []);
   let bad = 0;
   for (const [where, read] of blobs) {
     const buf = read();
     if (buf.length > 16 << 20) continue;
+    if (allowed.size && allowed.has(blobSha(buf))) continue;
     for (const f of scanText(buf.toString("latin1"), pinned)) {
       bad++;
       console.error(`LEAK ${where}: ${f.reason}${f.keyId ? ` (key id ${f.keyId})` : ""}`);

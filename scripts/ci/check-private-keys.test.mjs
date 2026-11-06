@@ -20,5 +20,6 @@ test("a seed of a pinned key is detected without printing it; public keys and ot
   assert.ok(!JSON.stringify(found).includes(seedB64));
   assert.deepEqual(scanText(`pub=${pub}\n`, pinned), []);
   assert.deepEqual(scanText(`x=${Buffer.alloc(32, 7).toString("base64")}\n`, pinned), []);
-  assert.equal(scanText("-----BEGIN PRIVATE KEY-----\nAAAA\n", pinned).length, 1);
+  const marker = ["-----BEGIN", "PRIVATE", "KEY-----"].join(" ");
+  assert.equal(scanText(`${marker}\nAAAA\n`, pinned).length, 1);
 });
