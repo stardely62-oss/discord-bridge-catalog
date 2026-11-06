@@ -147,7 +147,8 @@ if (errors.length) {
   process.exit(1);
 }
 
-const serial = Number(opt("--serial", execFileSync("git", ["log", "-1", "--format=%ct"], { cwd: root }).toString().trim()));
+const serial = Number(args.includes("--serial") ? opt("--serial") : execFileSync("git", ["log", "-1", "--format=%ct"], { cwd: root }).toString().trim());
+if (!Number.isSafeInteger(serial) || serial <= 0) { console.error("ERROR serial must be a positive integer"); process.exit(1); }
 const published = new Date(serial * 1000).toISOString().replace(/\.\d{3}Z$/, "Z");
 const data = Buffer.from(JSON.stringify({ format: 1, serial, packs, icons }));
 if (data.length > LIMITS.data) { console.error("ERROR catalog data larger than 4 MiB"); process.exit(1); }
