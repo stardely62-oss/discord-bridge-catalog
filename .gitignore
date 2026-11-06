@@ -1,3 +1,32 @@
 dist/
 dist2/
 node_modules/
+# --- Secrets and private material (never commit) -------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.seed
+*seed*.b64
+*private*.b64
+*private-key.*
+*private_key*
+*signing-key*
+id_rsa*
+id_ed25519*
+*credentials*
+.netrc
+.npmrc
+hosts.yml
+*.token
+gh-token*
+# Signing scratch: only keys/catalog-public-key.b64 is tracked in keys/
+/out/
+catalog.signed.json
+*.unsigned.json
+# Local agent / assistant scratch
+.claude/
+CLAUDE.local.md

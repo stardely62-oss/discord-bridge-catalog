@@ -8,6 +8,7 @@ import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { parseNet } from "./lib/net.mjs";
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const args = process.argv.slice(2);
@@ -34,33 +35,6 @@ const urlOk = (u) => {
   return host.includes(".") && !host.includes("@");
 };
 
-function parseNet(s) {
-  if (typeof s !== "string") return null;
-  const [ip, mask, extra] = s.split("/");
-  if (extra !== undefined) return null;
-  let v6 = false, bits = 0n, width = 32;
-  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(ip)) {
-    const parts = ip.split(".").map(Number);
-    if (parts.some((p) => p > 255)) return null;
-    bits = parts.reduce((a, p) => (a << 8n) | BigInt(p), 0n);
-  } else if (ip.includes(":")) {
-    v6 = true; width = 128;
-    const [head, tail, more] = ip.split("::");
-    if (more !== undefined) return null;
-    const h = head ? head.split(":") : [];
-    const t = tail !== undefined ? (tail ? tail.split(":") : []) : null;
-    const groups = t === null ? h : [...h, ...Array(8 - h.length - t.length).fill("0"), ...t];
-    if (groups.length !== 8 || groups.some((g) => !/^[0-9a-fA-F]{1,4}$/.test(g))) return null;
-    bits = groups.reduce((a, g) => (a << 16n) | BigInt(parseInt(g, 16)), 0n);
-  } else return null;
-  let prefix = width;
-  if (mask !== undefined) {
-    if (!/^\d+$/.test(mask) || Number(mask) > width) return null;
-    prefix = Number(mask);
-  }
-  const m = prefix === 0 ? 0n : (((1n << BigInt(width)) - 1n) >> BigInt(width - prefix)) << BigInt(width - prefix);
-  return { v6, bits: bits & m, prefix };
-}
 
 function imageSize(b) {
   if (b.length >= 24 && b.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) && b.subarray(12, 16).toString() === "IHDR")

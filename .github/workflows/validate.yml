@@ -1,6 +1,8 @@
 name: Validate
-# Every pull request and push: schema and data checks, deterministic build.
-# Nothing is signed or published here.
+# Every pull request and push: schema and data checks, versioning rule,
+# deterministic build, and the security checks. Nothing is signed or
+# published here; no secrets are available (read-only token, and pull
+# requests from forks run with approval only).
 on:
   pull_request:
   push:
@@ -11,14 +13,24 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          fetch-depth: 1
-      - uses: actions/setup-node@v4
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
       - name: Validate packs and icons, build the snapshot
         run: node scripts/build.mjs --out dist
+      - name: Versioning check tests (offline)
+        run: node --test scripts/check-versions.test.mjs
+      - name: Changed addresses need a new pack version (vs. base and the published catalog)
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          base=""
+          if [ -n "$BASE_SHA" ] && [ "$BASE_SHA" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then base="--base $BASE_SHA"; fi
+          node scripts/check-versions.mjs $base --published
       - name: The build is deterministic
         run: |
           node scripts/build.mjs --out dist2 >/dev/null
@@ -29,3 +41,51 @@ jobs:
           if git ls-files | grep -Ei '\.(bat|cmd|ps1|exe|dll|sys|js|vbs|svg)$' | grep -v '^scripts/'; then
             echo "executable or SVG files are not allowed in the catalog"; exit 1
           fi
+      - name: Only the owner may change scripts, workflows and keys
+        # Paired with CODEOWNERS and the main ruleset: a contributor's pull
+        # request that touches the signing path is flagged loudly.
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          [ -n "$BASE_SHA" ] || exit 0
+          changed=$(git diff --name-only "$BASE_SHA" HEAD -- .github scripts keys package.json package-lock.json .gitleaks.toml)
+          if [ -n "$changed" ] && [ "$AUTHOR" != "$OWNER" ]; then
+            echo "::error::this pull request changes the build/signing path; only the owner may do that:"; echo "$changed"; exit 1
+          fi
+
+  security:
+    name: security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Gitleaks 8.30.1 (pinned binary, SHA-256 checked) — full history and working tree, redacted
+        env:
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          curl -fsSL -o /tmp/gitleaks.tgz "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  /tmp/gitleaks.tgz" | sha256sum -c -
+          tar -xzf /tmp/gitleaks.tgz -C /tmp gitleaks
+          /tmp/gitleaks git . --config .gitleaks.toml --redact --no-banner --exit-code 1
+          /tmp/gitleaks dir . --config .gitleaks.toml --redact --no-banner --exit-code 1
+      - name: No private seed of the pinned catalog key anywhere in the history
+        run: node scripts/ci/check-private-keys.mjs --history
+      - name: New commits use noreply emails (reported masked)
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node scripts/ci/check-commit-emails.mjs "$BASE" "$HEAD"
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+      - name: Workflow security policy (pins, permissions, secrets, signing isolation)
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          node scripts/ci/check-workflows.mjs
+      - name: Tests of the security checks
+        run: node --test scripts/ci/check-commit-emails.test.mjs scripts/ci/check-private-keys.test.mjs
