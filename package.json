@@ -1,0 +1,9 @@
+{
+  "name": "discord-bridge-catalog-tools",
+  "private": true,
+  "description": "CI-only tooling. The catalog build, check and signing scripts have no dependencies; js-yaml is used only by the workflow security policy check.",
+  "type": "module",
+  "devDependencies": {
+    "js-yaml": "4.3.2"
+  }
+}

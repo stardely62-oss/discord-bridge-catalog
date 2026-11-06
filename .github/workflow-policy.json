@@ -1,0 +1,15 @@
+{
+  "$comment": "Checked by scripts/ci/check-workflows.mjs (same checker as discord-bridge). Only the publish job writes (download + gh release, no build, no secrets); only the sign job reads CATALOG_SIGNING_KEY (environment catalog-publish, main only, dispatch only, dependency-free signer only).",
+  "writeJobs": {
+    "publish.yml": ["publish"]
+  },
+  "signingJobs": {
+    "publish.yml": {
+      "sign": {
+        "environment": "catalog-publish",
+        "secrets": ["CATALOG_SIGNING_KEY"],
+        "signer": ["node scripts/sign.mjs"]
+      }
+    }
+  }
+}

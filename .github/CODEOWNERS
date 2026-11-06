@@ -1,0 +1,5 @@
+# Владелец проверяет всё; путь сборки и подписи — только владелец.
+* @stardely62-oss
+/.github/ @stardely62-oss
+/scripts/ @stardely62-oss
+/keys/ @stardely62-oss
