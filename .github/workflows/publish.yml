@@ -1,0 +1,44 @@
+name: Publish signed catalog
+# Manual, protected step after review: builds the snapshot of main, signs the
+# manifest with CATALOG_SIGNING_KEY (environment secret) and publishes a
+# release catalog-<serial> marked as latest. Pull requests can never reach
+# this workflow or the key.
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: publish
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: catalog-publish
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build
+        run: node scripts/build.mjs --out dist
+      - name: Serial only grows
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          new=$(node -p "require('./dist/catalog-manifest.json').serial")
+          last=$(gh release list --limit 1 --json tagName -q '.[0].tagName' | sed 's/^catalog-//')
+          echo "new $new, last ${last:-none}"
+          if [ -n "$last" ] && [ "$new" -le "$last" ]; then echo "serial $new is not newer than $last"; exit 1; fi
+      - name: Sign (refuses without the key or with a key that is not pinned)
+        env:
+          CATALOG_SIGNING_KEY: ${{ secrets.CATALOG_SIGNING_KEY }}
+        run: node scripts/sign.mjs dist
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          serial=$(node -p "require('./dist/catalog-manifest.json').serial")
+          gh release create "catalog-$serial" dist/catalog.signed.json dist/catalog-data.json \
+            --title "Catalog $serial" --latest \
+            --notes "Signed catalog snapshot of $GITHUB_SHA. Data only (domains, IP networks, icons)."

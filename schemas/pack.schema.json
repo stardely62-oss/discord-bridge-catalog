@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/stardely62-oss/discord-bridge-catalog/schemas/pack.schema.json",
+  "title": "Discord Bridge catalog pack (schema 1)",
+  "description": "Data only: domains and IP networks of one app, game or service. Documentation of the format; the authoritative checks are scripts/build.mjs and bridge_core::packs in the app.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "id", "version", "updated", "name", "description", "category", "source"],
+  "properties": {
+    "schema": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,39}$", "description": "Stable id; equals the file name. Never reuse or rename." },
+    "version": { "type": "integer", "minimum": 1, "description": "Increase on every change of the pack." },
+    "updated": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "name": { "$ref": "#/$defs/localized60" },
+    "description": { "$ref": "#/$defs/localized" },
+    "category": { "enum": ["messenger", "voice", "game", "launcher", "video", "streaming", "service", "other"] },
+    "source": { "enum": ["official", "community"] },
+    "icon": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,39}\\.(png|webp)$" },
+    "domains": { "type": "array", "maxItems": 2000, "uniqueItems": true, "items": { "type": "string", "maxLength": 253 } },
+    "ips": { "type": "array", "maxItems": 5000, "uniqueItems": true, "items": { "type": "string", "description": "IPv4/IPv6 address or CIDR; not wider than /8 (IPv4) or /16 (IPv6)." } },
+    "provenance": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "url"],
+        "properties": {
+          "kind": { "enum": ["domains", "ips", "icon"] },
+          "url": { "type": "string", "pattern": "^https://", "maxLength": 300 },
+          "note": { "type": "string", "maxLength": 600 }
+        }
+      }
+    },
+    "notes": { "$ref": "#/$defs/localized" },
+    "partialCoverage": { "type": "boolean", "description": "Domains help only partly (the service also connects to IPs directly)." },
+    "requires": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "selectedIps": { "type": "boolean", "description": "The IPs help only in the 'selected' ipset modes." },
+        "gameFilter": { "type": "boolean", "description": "Known for certain to need the game filter." }
+      }
+    },
+    "flowsealList": { "enum": ["list-general.txt", "list-google.txt"], "description": "Already covered by this Flowseal list: shown as 'part of Flowseal', never installed." },
+    "minAppVersion": { "type": "string", "description": "SemVer; older apps hide the pack." }
+  },
+  "$defs": {
+    "localized": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ru", "en"],
+      "properties": { "ru": { "type": "string", "minLength": 1, "maxLength": 600 }, "en": { "type": "string", "minLength": 1, "maxLength": 600 } }
+    },
+    "localized60": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ru", "en"],
+      "properties": { "ru": { "type": "string", "minLength": 1, "maxLength": 60 }, "en": { "type": "string", "minLength": 1, "maxLength": 60 } }
+    }
+  }
+}

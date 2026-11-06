@@ -1,0 +1,31 @@
+name: Validate
+# Every pull request and push: schema and data checks, deterministic build.
+# Nothing is signed or published here.
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate packs and icons, build the snapshot
+        run: node scripts/build.mjs --out dist
+      - name: The build is deterministic
+        run: |
+          node scripts/build.mjs --out dist2 >/dev/null
+          cmp dist/catalog-data.json dist2/catalog-data.json
+          cmp dist/catalog-manifest.json dist2/catalog-manifest.json
+      - name: Forbidden file types
+        run: |
+          if git ls-files | grep -Ei '\.(bat|cmd|ps1|exe|dll|sys|js|vbs|svg)$' | grep -v '^scripts/'; then
+            echo "executable or SVG files are not allowed in the catalog"; exit 1
+          fi
