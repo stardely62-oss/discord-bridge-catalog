@@ -1,23 +1,47 @@
 name: Publish signed catalog
-# Manual, protected step after review: builds the snapshot of main, signs the
-# manifest with CATALOG_SIGNING_KEY (environment secret) and publishes a
-# release catalog-<serial> marked as latest. Pull requests can never reach
-# this workflow or the key.
+# Manual, protected publication of main. Four isolated jobs:
+#   build   — validates and builds the snapshot of this commit, checks that
+#             the serial grows and that changed addresses got a new pack
+#             version (vs. the published catalog). No key, read-only.
+#   sign    — environment `catalog-publish` (owner approval, main only).
+#             Runs only the dependency-free scripts/sign.mjs with the
+#             runner's built-in Node on the manifest whose SHA-256 the build
+#             job reported. Uploads only catalog.signed.json.
+#   verify  — signature with the pinned key, data size and SHA-256, serial.
+#   publish — creates release catalog-<serial> (latest) from the verified
+#             files. Write token, no key, no checkout, no build. An existing
+#             release is never replaced.
+# Pull requests can never reach this workflow or the key.
 on:
   workflow_dispatch:
-permissions:
-  contents: write
+permissions: {}
 concurrency:
   group: publish
   cancel-in-progress: false
 jobs:
-  publish:
+  build:
+    name: Build and check (no key, read-only)
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    environment: catalog-publish
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      serial: ${{ steps.out.outputs.serial }}
+      manifest_sha256: ${{ steps.out.outputs.manifest_sha256 }}
+      data_sha256: ${{ steps.out.outputs.data_sha256 }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: The signing environment is protected (owner approval, main only)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          env=$(gh api "repos/${GITHUB_REPOSITORY}/environments/catalog-publish") || { echo "::error::environment catalog-publish does not exist"; exit 1; }
+          echo "$env" | jq -e '[.protection_rules[]?|select(.type=="required_reviewers")]|length>0' >/dev/null || { echo "::error::catalog-publish has no required reviewers"; exit 1; }
+          echo "$env" | jq -e '.deployment_branch_policy != null' >/dev/null || { echo "::error::catalog-publish is not limited to selected branches"; exit 1; }
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
       - name: Build
@@ -27,20 +51,117 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           new=$(node -p "require('./dist/catalog-manifest.json').serial")
-          last=$(gh release list --limit 1 --json tagName -q '.[0].tagName' | sed 's/^catalog-//')
+          last=$(gh release list -R "$GITHUB_REPOSITORY" --limit 1 --json tagName -q '.[0].tagName' | sed 's/^catalog-//')
           echo "new $new, last ${last:-none}"
           if [ -n "$last" ] && [ "$new" -le "$last" ]; then echo "serial $new is not newer than $last"; exit 1; fi
       - name: Changed addresses need a new pack version (vs. the published catalog)
         run: node scripts/check-versions.mjs --published --allow-unpublished
-      - name: Sign (refuses without the key or with a key that is not pinned)
+      - name: Outputs
+        id: out
+        run: |
+          echo "serial=$(node -p "require('./dist/catalog-manifest.json').serial")" >> "$GITHUB_OUTPUT"
+          echo "manifest_sha256=$(sha256sum dist/catalog-manifest.json | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+          echo "data_sha256=$(sha256sum dist/catalog-data.json | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: catalog-unsigned
+          path: |
+            dist/catalog-manifest.json
+            dist/catalog-data.json
+          retention-days: 1
+          if-no-files-found: error
+
+  sign:
+    name: Sign (protected environment, built-in Node only)
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: catalog-publish
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            scripts/sign.mjs
+            keys
+          sparse-checkout-cone-mode: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: catalog-unsigned
+          path: dist
+      - name: Sign the manifest reported by the build job
         env:
           CATALOG_SIGNING_KEY: ${{ secrets.CATALOG_SIGNING_KEY }}
-        run: node scripts/sign.mjs dist
-      - name: Publish release
+          EXPECT_SHA256: ${{ needs.build.outputs.manifest_sha256 }}
+        run: node scripts/sign.mjs dist --expect-sha256 "$EXPECT_SHA256"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: catalog-signed
+          path: dist/catalog.signed.json
+          retention-days: 1
+          if-no-files-found: error
+
+  verify:
+    name: Verify (pinned key, hashes; no key)
+    needs: [build, sign]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      signed_sha256: ${{ steps.check.outputs.signed_sha256 }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: catalog-unsigned
+          path: out
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: catalog-signed
+          path: out
+      - name: Signature, data and exactly the built manifest
+        id: check
+        env:
+          EXPECT_SHA256: ${{ needs.build.outputs.manifest_sha256 }}
+          DATA_SHA256: ${{ needs.build.outputs.data_sha256 }}
+        run: |
+          echo "$DATA_SHA256  out/catalog-data.json" | sha256sum -c -
+          node scripts/verify-signed.mjs out --expect-manifest-sha256 "$EXPECT_SHA256"
+          echo "signed_sha256=$(sha256sum out/catalog.signed.json | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+  publish:
+    name: Publish (write token, no key)
+    needs: [build, verify]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: catalog-unsigned
+          path: out
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: catalog-signed
+          path: out
+      - name: Create release catalog-<serial> (never replaces one)
         env:
           GH_TOKEN: ${{ github.token }}
+          SERIAL: ${{ needs.build.outputs.serial }}
+          DATA_SHA256: ${{ needs.build.outputs.data_sha256 }}
+          SIGNED_SHA256: ${{ needs.verify.outputs.signed_sha256 }}
         run: |
-          serial=$(node -p "require('./dist/catalog-manifest.json').serial")
-          gh release create "catalog-$serial" dist/catalog.signed.json dist/catalog-data.json \
-            --title "Catalog $serial" --latest \
+          [[ "$SERIAL" =~ ^[0-9]+$ ]] || { echo "bad serial"; exit 1; }
+          echo "$DATA_SHA256  out/catalog-data.json" | sha256sum -c -
+          echo "$SIGNED_SHA256  out/catalog.signed.json" | sha256sum -c -
+          if gh release view "catalog-$SERIAL" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::release catalog-$SERIAL already exists — it is never replaced"; exit 1
+          fi
+          gh release create "catalog-$SERIAL" out/catalog.signed.json out/catalog-data.json -R "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" --title "Catalog $SERIAL" --latest \
             --notes "Signed catalog snapshot of $GITHUB_SHA. Data only (domains, IP networks, icons)."
