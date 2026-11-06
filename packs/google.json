@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "id": "google",
+  "version": 1,
+  "updated": "2026-11-06",
+  "name": {
+    "ru": "Google",
+    "en": "Google"
+  },
+  "description": {
+    "ru": "Сервисы и инфраструктура Google из списков Flowseal: API, Google Play, gstatic, видеосерверы, публичный DNS.",
+    "en": "Google services and infrastructure from the Flowseal lists: APIs, Google Play, gstatic, video servers, public DNS."
+  },
+  "category": "service",
+  "source": "official",
+  "icon": "google.png",
+  "domains": [
+    "googlevideo.com",
+    "play.google.com",
+    "www.gstatic.com",
+    "fonts.googleapis.com",
+    "jnn-pa.googleapis.com",
+    "youtube.googleapis.com",
+    "youtubei.googleapis.com",
+    "youtubeembeddedplayer.googleapis.com",
+    "yt3.googleusercontent.com",
+    "yt3.ggpht.com",
+    "yt4.ggpht.com",
+    "ytimg.l.google.com",
+    "wide-youtube.l.google.com",
+    "youtube-ui.l.google.com",
+    "yt-video-upload.l.google.com",
+    "google.ru",
+    "dns.google",
+    "discord-attachments-uploads-prd.storage.googleapis.com"
+  ],
+  "ips": [],
+  "provenance": [
+    {
+      "kind": "domains",
+      "url": "https://github.com/Flowseal/zapret-discord-youtube",
+      "note": "Записи на доменах Google из list-google.txt Flowseal 1.10.4, а также dns.google (публичный DNS Google) и хранилище вложений Discord в Google Cloud Storage из list-general.txt. Многие адреса — инфраструктура YouTube и Discord, поэтому они же есть в их карточках."
+    },
+    {
+      "kind": "icon",
+      "url": "https://github.com/simple-icons/simple-icons",
+      "note": "Значок из Simple Icons (CC0 1.0); товарный знак принадлежит владельцу, используется только для обозначения сервиса."
+    }
+  ],
+  "notes": {
+    "ru": "Информационная карточка: адреса уже входят в списки Flowseal и отдельно не устанавливаются. Это не все адреса Google — только те, что есть в списках Flowseal. Доступность сервисов Google Discord Bridge не проверяет.",
+    "en": "Information card: these addresses are already in the Flowseal lists and are not installed separately. These are not all Google addresses, only those in the Flowseal lists. Discord Bridge does not check Google availability."
+  },
+  "flowsealList": "list-google.txt"
+}

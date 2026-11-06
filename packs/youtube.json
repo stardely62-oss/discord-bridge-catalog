@@ -1,15 +1,15 @@
 {
   "schema": 1,
   "id": "youtube",
-  "version": 1,
+  "version": 2,
   "updated": "2026-11-06",
   "name": {
     "ru": "YouTube",
     "en": "YouTube"
   },
   "description": {
-    "ru": "Видео и превью YouTube.",
-    "en": "YouTube videos and thumbnails."
+    "ru": "Видео, превью, плеер и загрузка видео YouTube.",
+    "en": "YouTube videos, thumbnails, the player and uploads."
   },
   "category": "video",
   "source": "official",
@@ -17,16 +17,27 @@
   "domains": [
     "youtube.com",
     "youtu.be",
-    "googlevideo.com",
+    "youtube-nocookie.com",
+    "youtubekids.com",
     "ytimg.com",
-    "ggpht.com"
+    "ytimg.l.google.com",
+    "googlevideo.com",
+    "yt3.ggpht.com",
+    "yt4.ggpht.com",
+    "yt3.googleusercontent.com",
+    "youtube.googleapis.com",
+    "youtubei.googleapis.com",
+    "youtubeembeddedplayer.googleapis.com",
+    "wide-youtube.l.google.com",
+    "youtube-ui.l.google.com",
+    "yt-video-upload.l.google.com"
   ],
   "ips": [],
   "provenance": [
     {
       "kind": "domains",
       "url": "https://github.com/Flowseal/zapret-discord-youtube",
-      "note": "Домены YouTube входят в list-google.txt Flowseal; здесь перечислены для справки."
+      "note": "Записи YouTube из list-google.txt Flowseal 1.10.4. Часть из них — адреса инфраструктуры Google (googleapis.com, l.google.com, ggpht.com, googleusercontent.com, googlevideo.com) и поэтому есть и в карточке Google."
     },
     {
       "kind": "icon",
@@ -35,8 +46,8 @@
     }
   ],
   "notes": {
-    "ru": "Уже входит в списки Flowseal. Доступность YouTube Discord Bridge не проверяет.",
-    "en": "Already part of the Flowseal lists. Discord Bridge does not check YouTube availability."
+    "ru": "Уже входит в списки Flowseal, отдельно не устанавливается. Доступность YouTube Discord Bridge не проверяет.",
+    "en": "Already part of the Flowseal lists, not installed separately. Discord Bridge does not check YouTube availability."
   },
   "flowsealList": "list-google.txt"
 }

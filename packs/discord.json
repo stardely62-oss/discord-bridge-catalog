@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "discord",
-  "version": 1,
+  "version": 2,
   "updated": "2026-11-06",
   "name": {
     "ru": "Discord",
@@ -19,14 +19,34 @@
     "discord.gg",
     "discordapp.com",
     "discordapp.net",
-    "discord.media"
+    "discord.media",
+    "discordcdn.com",
+    "dis.gd",
+    "discord.app",
+    "discord.co",
+    "discord.design",
+    "discord.dev",
+    "discord.gift",
+    "discord.gifts",
+    "discord.new",
+    "discord.store",
+    "discord.status",
+    "discordstatus.com",
+    "discord-activities.com",
+    "discordactivities.com",
+    "discordmerch.com",
+    "discordpartygames.com",
+    "discordsays.com",
+    "discordsez.com",
+    "discord-attachments-uploads-prd.storage.googleapis.com",
+    "stable.dl2.discordapp.net"
   ],
   "ips": [],
   "provenance": [
     {
       "kind": "domains",
       "url": "https://github.com/Flowseal/zapret-discord-youtube",
-      "note": "Домены Discord входят в list-general.txt Flowseal; здесь перечислены для справки."
+      "note": "Записи Discord из list-general.txt Flowseal 1.10.4 и stable.dl2.discordapp.net (обновления клиента) из list-google.txt. discord-attachments-uploads-prd.storage.googleapis.com — хранилище вложений Discord в Google Cloud Storage. Голос Discord обрабатывается отдельным правилом стратегии по протоколу (UDP, discord/stun), а не по доменам."
     },
     {
       "kind": "icon",
@@ -35,8 +55,8 @@
     }
   ],
   "notes": {
-    "ru": "Уже входит в списки Flowseal. Это не означает, что Discord гарантированно доступен — это проверяет диагностика.",
-    "en": "Already part of the Flowseal lists. This does not mean Discord is reachable — diagnostics check that."
+    "ru": "Уже входит в списки Flowseal, отдельно не устанавливается. Это не означает, что Discord гарантированно доступен — это проверяет диагностика.",
+    "en": "Already part of the Flowseal lists, not installed separately. This does not mean Discord is reachable — diagnostics check that."
   },
   "flowsealList": "list-general.txt"
 }
