@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "id": "discord",
+  "version": 1,
+  "updated": "2026-11-06",
+  "name": {
+    "ru": "Discord",
+    "en": "Discord"
+  },
+  "description": {
+    "ru": "Сообщения, голосовые каналы и стримы.",
+    "en": "Messages, voice channels and streams."
+  },
+  "category": "voice",
+  "source": "official",
+  "icon": "discord.png",
+  "domains": [
+    "discord.com",
+    "discord.gg",
+    "discordapp.com",
+    "discordapp.net",
+    "discord.media"
+  ],
+  "ips": [],
+  "provenance": [
+    {
+      "kind": "domains",
+      "url": "https://github.com/Flowseal/zapret-discord-youtube",
+      "note": "Домены Discord входят в list-general.txt Flowseal; здесь перечислены для справки."
+    },
+    {
+      "kind": "icon",
+      "url": "https://github.com/simple-icons/simple-icons",
+      "note": "Значок из Simple Icons (CC0 1.0); товарный знак принадлежит владельцу, используется только для обозначения сервиса."
+    }
+  ],
+  "notes": {
+    "ru": "Уже входит в списки Flowseal. Это не означает, что Discord гарантированно доступен — это проверяет диагностика.",
+    "en": "Already part of the Flowseal lists. This does not mean Discord is reachable — diagnostics check that."
+  },
+  "flowsealList": "list-general.txt"
+}

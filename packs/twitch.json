@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "id": "twitch",
+  "version": 1,
+  "updated": "2026-11-06",
+  "name": {
+    "ru": "Twitch",
+    "en": "Twitch"
+  },
+  "description": {
+    "ru": "Трансляции и чат Twitch.",
+    "en": "Twitch streams and chat."
+  },
+  "category": "streaming",
+  "source": "official",
+  "icon": "twitch.png",
+  "domains": [
+    "twitch.tv",
+    "ttvnw.net",
+    "jtvnw.net",
+    "twitchcdn.net",
+    "twitchsvc.net"
+  ],
+  "ips": [],
+  "provenance": [
+    {
+      "kind": "domains",
+      "url": "https://www.twitch.tv",
+      "note": "Основные домены сервиса, составлено вручную по официальному сайту; список может быть неполным."
+    },
+    {
+      "kind": "icon",
+      "url": "https://github.com/simple-icons/simple-icons",
+      "note": "Значок из Simple Icons (CC0 1.0); товарный знак принадлежит владельцу, используется только для обозначения сервиса."
+    }
+  ]
+}

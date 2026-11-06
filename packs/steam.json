@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "id": "steam",
+  "version": 1,
+  "updated": "2026-11-06",
+  "name": {
+    "ru": "Steam",
+    "en": "Steam"
+  },
+  "description": {
+    "ru": "Магазин, сообщество, загрузки и чат Steam.",
+    "en": "Steam store, community, downloads and chat."
+  },
+  "category": "launcher",
+  "source": "official",
+  "icon": "steam.png",
+  "domains": [
+    "steampowered.com",
+    "steamcommunity.com",
+    "steamstatic.com",
+    "steamcontent.com",
+    "steamserver.net",
+    "steamgames.com",
+    "steam-chat.com",
+    "valvesoftware.com"
+  ],
+  "ips": [],
+  "provenance": [
+    {
+      "kind": "domains",
+      "url": "https://store.steampowered.com",
+      "note": "Основные домены сервиса, составлено вручную по официальному сайту; список может быть неполным."
+    },
+    {
+      "kind": "icon",
+      "url": "https://github.com/simple-icons/simple-icons",
+      "note": "Значок из Simple Icons (CC0 1.0); товарный знак принадлежит владельцу, используется только для обозначения сервиса."
+    }
+  ]
+}

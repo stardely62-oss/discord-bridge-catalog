@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "id": "roblox",
+  "version": 1,
+  "updated": "2026-11-06",
+  "name": {
+    "ru": "Roblox",
+    "en": "Roblox"
+  },
+  "description": {
+    "ru": "Сайт, клиент и контент Roblox.",
+    "en": "Roblox website, client and content."
+  },
+  "category": "game",
+  "source": "official",
+  "icon": "roblox.png",
+  "domains": [
+    "roblox.com",
+    "rbxcdn.com"
+  ],
+  "ips": [],
+  "provenance": [
+    {
+      "kind": "domains",
+      "url": "https://www.roblox.com",
+      "note": "Основные домены сервиса, составлено вручную по официальному сайту; список может быть неполным."
+    },
+    {
+      "kind": "icon",
+      "url": "https://github.com/simple-icons/simple-icons",
+      "note": "Значок из Simple Icons (CC0 1.0); товарный знак принадлежит владельцу, используется только для обозначения сервиса."
+    }
+  ],
+  "notes": {
+    "ru": "Домены помогают частично: сама игра соединяется по UDP с IP-адресами — может понадобиться игровой фильтр (Настройки → Обход) и подходящая стратегия. IP-адреса игровых серверов в набор не включены: проверяемого официального источника нет.",
+    "en": "Domains help only partly: the game itself talks UDP to IP addresses — the game filter (Settings → Bypass) and a suitable strategy may be needed. Game server IPs are not included: there is no verifiable official source."
+  },
+  "partialCoverage": true
+}

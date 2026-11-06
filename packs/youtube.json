@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "id": "youtube",
+  "version": 1,
+  "updated": "2026-11-06",
+  "name": {
+    "ru": "YouTube",
+    "en": "YouTube"
+  },
+  "description": {
+    "ru": "Видео и превью YouTube.",
+    "en": "YouTube videos and thumbnails."
+  },
+  "category": "video",
+  "source": "official",
+  "icon": "youtube.png",
+  "domains": [
+    "youtube.com",
+    "youtu.be",
+    "googlevideo.com",
+    "ytimg.com",
+    "ggpht.com"
+  ],
+  "ips": [],
+  "provenance": [
+    {
+      "kind": "domains",
+      "url": "https://github.com/Flowseal/zapret-discord-youtube",
+      "note": "Домены YouTube входят в list-google.txt Flowseal; здесь перечислены для справки."
+    },
+    {
+      "kind": "icon",
+      "url": "https://github.com/simple-icons/simple-icons",
+      "note": "Значок из Simple Icons (CC0 1.0); товарный знак принадлежит владельцу, используется только для обозначения сервиса."
+    }
+  ],
+  "notes": {
+    "ru": "Уже входит в списки Flowseal. Доступность YouTube Discord Bridge не проверяет.",
+    "en": "Already part of the Flowseal lists. Discord Bridge does not check YouTube availability."
+  },
+  "flowsealList": "list-google.txt"
+}
