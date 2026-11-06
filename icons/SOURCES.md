@@ -14,7 +14,6 @@
 |---|---|---|---|
 | discord.png | discord | #5865F2 | https://discord.com/branding |
 | youtube.png | youtube | #FF0000 | https://www.youtube.com/howyoutubeworks/resources/brand-resources/ |
-| telegram.png | telegram | #26A5E4 | https://telegram.org/tour/screenshots |
 
 Если правообладатель попросит убрать значок, набор продолжит работать с запасным
 значком (первая буква названия).
