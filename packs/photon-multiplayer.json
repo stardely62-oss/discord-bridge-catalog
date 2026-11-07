@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "id": "photon-multiplayer",
+  "version": 1,
+  "updated": "2026-11-07",
+  "name": {
+    "ru": "R.E.P.O. / PEAK (Photon)",
+    "en": "R.E.P.O. / PEAK (Photon)"
+  },
+  "description": {
+    "ru": "Экспериментальный набор для сетевой игры через Photon Cloud: серверы имён Photon и серверы европейского региона (EU, Амстердам), подтверждённые сертификатами Exit Games. Для R.E.P.O., PEAK и, возможно, других игр на Photon.",
+    "en": "Experimental pack for online play through Photon Cloud: Photon name servers and servers of the European region (EU, Amsterdam), confirmed by Exit Games certificates. For R.E.P.O., PEAK and possibly other Photon games."
+  },
+  "category": "game",
+  "source": "community",
+  "domains": [
+    "photonengine.io",
+    "ns.exitgames.com"
+  ],
+  "ips": [
+    "216.120.180.0/23",
+    "80.93.214.0/24",
+    "87.120.167.0/24"
+  ],
+  "provenance": [
+    {
+      "kind": "domains",
+      "url": "https://github.com/Flowseal/zapret-discord-youtube/issues/14165",
+      "note": "Автор issue сообщил, что R.E.P.O. и PEAK заработали после добавления ns.photonengine.io; в комментариях предложено указать весь photonengine.io (поддомены ns, ns-eu, ns-us, ns-jp, ns-usw учитываются). ns.exitgames.com — прежний адрес сервера имён Photon, тот же диапазон Exit Games (DNS, 2026-11-07)."
+    },
+    {
+      "kind": "ips",
+      "url": "https://apps.db.ripe.net/db-web-ui/query?searchtext=216.120.180.0%2F23",
+      "note": "216.120.180.0/23 зарегистрирована на Exit Games GmbH (RIPE, DE-EXITGAMES-19981116), анонсируется через Cloudflare Spectrum (AS209242). В ней серверы имён ns-eu/us/jp/usw.photonengine.io и ns*.exitgames.com; на 19093 сертификат *.photonindustries.io (2026-11-07)."
+    },
+    {
+      "kind": "ips",
+      "url": "https://github.com/Flowseal/zapret-discord-youtube/issues/14165#issuecomment-5273990874",
+      "note": "80.93.214.0/24 и 87.120.167.0/24 (G-Core, AS199524; RIPE: NL и LU) — UDP 5055–5058 к ним при запуске сетевой игры PEAK, один пользователь. Независимо: выборочные адреса обеих сетей отвечают на портах Photon 4530/4531/19090/19091 с сертификатом *.exitgames.com (2026-11-07)."
+    },
+    {
+      "kind": "ips",
+      "url": "https://doc.photonengine.com/realtime/current/connection-and-authentication/tcp-and-udp-port-numbers",
+      "note": "Порты Photon Cloud: UDP 5058/27000 (сервер имён), 5055/27001 (мастер), 5056/27002 (игровой); TCP 4533, 4530, 4531; WebSocket 80/9090–9093, WSS 443/19090–19093. Регион EU размещён в Амстердаме (страница Regions)."
+    }
+  ],
+  "notes": {
+    "ru": "Экспериментально. Игровой трафик Photon идёт по UDP 5055–5058, а не по 443, поэтому адреса работают только с игровым фильтром и режимом «Выбранные IP» или «Flowseal + выбранные»; нужна подходящая стратегия. Серверы других регионов (кроме EU) не включены. Установка набора сама по себе не гарантирует подключения. Голос Photon Voice и пиратские серверы не проверялись.",
+    "en": "Experimental. Photon game traffic uses UDP 5055–5058, not 443, so the IPs only work with the game filter and the “Selected IPs” or “Flowseal + selected” mode; a suitable strategy is needed. Servers of regions other than EU are not included. Installing the pack alone does not guarantee a connection. Photon Voice and pirate servers were not tested."
+  },
+  "partialCoverage": true,
+  "requires": {
+    "selectedIps": true,
+    "gameFilter": true
+  }
+}
