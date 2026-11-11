@@ -41,6 +41,16 @@
         "gameFilter": { "type": "boolean", "description": "Known for certain to need the game filter." }
       }
     },
+    "ports": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "description": "Ports of the service's own traffic, in the syntax of --filter-tcp/--filter-udp (\"5055-5058\", \"443,4530\"). Descriptive only: the app checks whether the active strategy handles them and never passes them to winws. Apps before 0.1.4 ignore the field.",
+      "properties": {
+        "tcp": { "type": "string", "pattern": "^\\d{1,5}(-\\d{1,5})?(,\\d{1,5}(-\\d{1,5})?)*$" },
+        "udp": { "type": "string", "pattern": "^\\d{1,5}(-\\d{1,5})?(,\\d{1,5}(-\\d{1,5})?)*$" }
+      }
+    },
     "flowsealList": { "enum": ["list-general.txt", "list-google.txt"], "description": "Already covered by this Flowseal list: shown as 'part of Flowseal', never installed." },
     "minAppVersion": { "type": "string", "description": "SemVer; older apps hide the pack." }
   },
