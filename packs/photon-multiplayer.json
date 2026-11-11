@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "id": "photon-multiplayer",
-  "version": 1,
-  "updated": "2026-11-07",
+  "version": 2,
+  "updated": "2026-11-11",
   "name": {
     "ru": "R.E.P.O. / PEAK (Photon)",
     "en": "R.E.P.O. / PEAK (Photon)"
@@ -52,5 +52,8 @@
   "requires": {
     "selectedIps": true,
     "gameFilter": true
+  },
+  "ports": {
+    "udp": "5055-5058"
   }
 }

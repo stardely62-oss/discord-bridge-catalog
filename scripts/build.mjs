@@ -20,7 +20,8 @@ const CATEGORIES = ["messenger", "voice", "game", "launcher", "video", "streamin
 const SOURCES = ["official", "community"];
 const PROV = ["domains", "ips", "icon"];
 const FLOWSEAL = ["list-general.txt", "list-google.txt"];
-const KEYS = ["schema", "id", "version", "updated", "name", "description", "category", "source", "icon", "domains", "ips", "provenance", "notes", "partialCoverage", "requires", "flowsealList", "minAppVersion"];
+const KEYS = ["schema", "id", "version", "updated", "name", "description", "category", "source", "icon", "domains", "ips", "provenance", "notes", "partialCoverage", "requires", "ports", "flowsealList", "minAppVersion"];
+const MAX_PORT_ITEMS = 32;
 
 const errors = [];
 const fail = (where, msg) => errors.push(`${where}: ${msg}`);
@@ -29,6 +30,24 @@ const idOk = (s) => typeof s === "string" && /^[a-z0-9][a-z0-9-]{0,39}$/.test(s)
 const textOk = (s, max) => typeof s === "string" && s.trim() !== "" && [...s].length <= max && !/[\u0000-\u001f\u007f]/.test(s);
 const localized = (v, max) => v && typeof v === "object" && Object.keys(v).sort().join() === "en,ru" && textOk(v.ru, max) && textOk(v.en, max);
 const domainOk = (d) => typeof d === "string" && d.length <= 253 && d.replace(/^\^/, "").split(".").every((l) => l.length > 0 && l.length <= 63 && /^[A-Za-z0-9_-]+$/.test(l));
+// `ports.tcp` / `ports.udp`: "5055-5058", "443,4530" — the syntax of
+// --filter-tcp/--filter-udp without game-filter variables (bridge_core::packs::PackPorts).
+const portsError = (ports) => {
+  if (!ports || typeof ports !== "object" || Array.isArray(ports)) return "ports must be an object";
+  const keys = Object.keys(ports);
+  if (!keys.length || keys.some((k) => k !== "tcp" && k !== "udp")) return "ports may only have tcp and/or udp";
+  for (const k of keys) {
+    const v = ports[k];
+    if (typeof v !== "string" || !/^\d{1,5}(-\d{1,5})?(,\d{1,5}(-\d{1,5})?)*$/.test(v)) return `ports.${k}: use "443" or "5055-5058", comma separated, no spaces`;
+    const items = v.split(",");
+    if (items.length > MAX_PORT_ITEMS) return `ports.${k}: more than ${MAX_PORT_ITEMS} items`;
+    for (const it of items) {
+      const [a, b = a] = it.split("-").map(Number);
+      if (a < 1 || b > 65535 || a > b) return `ports.${k}: "${it}" is not a port or range 1-65535`;
+    }
+  }
+  return null;
+};
 const urlOk = (u) => {
   if (typeof u !== "string" || !u.startsWith("https://") || u.length > 300 || /[\s\\\u0000-\u001f]/.test(u)) return false;
   const host = u.slice(8).split("/")[0];
@@ -88,6 +107,10 @@ for (const file of fs.readdirSync(packDir).sort()) {
   if (p.icon !== undefined && !iconNames.has(p.icon)) fail(where, `icon ${p.icon} not found in icons/`);
   if (p.flowsealList !== undefined && !FLOWSEAL.includes(p.flowsealList)) fail(where, "unknown flowsealList");
   if (p.minAppVersion !== undefined && !/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/.test(p.minAppVersion)) fail(where, "minAppVersion must be SemVer");
+  if (p.ports !== undefined) {
+    const e = portsError(p.ports);
+    if (e) fail(where, e);
+  }
   const domains = p.domains ?? [], ips = p.ips ?? [];
   if (!Array.isArray(domains) || !Array.isArray(ips)) fail(where, "domains/ips must be arrays");
   if (!domains.length && !ips.length) fail(where, "no domains and no IPs");
